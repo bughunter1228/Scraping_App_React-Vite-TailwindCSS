@@ -4,7 +4,7 @@ import Header from "./Header";
 
 const Layout = ({children}) =>{
     return(
-        <div className="layout-css">
+        <div className="w-[100vw] h-[100vh] bg-[#ecfdfe]">
             <Header />
             <main>{children}</main>
         </div>
