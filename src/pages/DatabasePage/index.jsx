@@ -19,12 +19,13 @@ import { db } from "../../lib/firebase";
 
 const DatabasePage = () => {
 
+    const columns = ['url', 'Categories', 'title', 'name', 'city', 'addressOnly', 'price', 'frequency', 'property_size', 'content', 'imageLinks'];
+
     const [keyword, setKeyword] = useState('');
     const [isDownloading, setIsDownloading] = useState(false);
     const [properties, setProperties] = useState([{ a: 'a', b: 'b' }])
     const [filteredProperties, setFilteredProperties] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [columns, setColumns] = useState([]);
 
     const startDownloading = () => {
         setIsDownloading(true);
@@ -50,8 +51,6 @@ const DatabasePage = () => {
         const cols = Array.from(
             new Set(properties.flatMap(Object.keys))
         );
-
-        setColumns(cols.filter(col => !['createdAt', 'id', 'isSuccess'].includes(col)));
 
         const searchKeyword = keyword.trim().toLocaleLowerCase();
 

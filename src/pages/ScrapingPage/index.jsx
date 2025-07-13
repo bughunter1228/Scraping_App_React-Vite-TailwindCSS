@@ -60,7 +60,7 @@ const ScrapingPage = () => {
 
         setIsScraping(true);
 
-        const res = await axios.get('http://localhost:5000/api/scrape', {
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/scrape`, {
             params: { url },
         })
         
