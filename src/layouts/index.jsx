@@ -5,7 +5,7 @@ import Footer from "./Footer";
 
 const Layout = ({children}) =>{
     return(
-        <div className="w-[100vw] bg-[#ecfdfe]">
+        <div className="w-[100vw] bg-[#ecfdfe] h-[100vh] overflow-auto">
             <Header />
             {children}
             <Footer />
