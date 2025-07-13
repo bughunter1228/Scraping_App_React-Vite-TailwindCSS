@@ -70,7 +70,7 @@ const ScrapingPage = () => {
             if(urls.includes(log.url)) log['isSuccess'] = false;
             else {
                 const key = getRandomKey(20);
-                setDoc(doc(db, "propertis", key), {...log, time: moment().format("YYYY-MM-DD HH-mm-ss"), createdAt: serverTimestamp(),});
+                setDoc(doc(db, "propertis", key), {...log, time: moment().format("YYYY-MM-DD HH:mm:ss"), createdAt: serverTimestamp(),});
                 setURLs([...urls, log.url]);
             }
         });
@@ -78,7 +78,7 @@ const ScrapingPage = () => {
         const successLogsCount = resLogs.filter(log=>log.isSuccess).length;
         const failLogsCount = resLogs.length - successLogsCount;
         const key = getRandomKey(20);
-        setDoc(doc(db, "logs", key), {success: successLogsCount, fail: failLogsCount, url, time: moment().format("YYYY-MM-DD HH-mm-ss"), createdAt: serverTimestamp()});
+        setDoc(doc(db, "logs", key), {success: successLogsCount, fail: failLogsCount, url, time: moment().format("YYYY-MM-DD HH:mm:ss"), createdAt: serverTimestamp()});
         
         setLogs(resLogs);
         setIsScraping(false);

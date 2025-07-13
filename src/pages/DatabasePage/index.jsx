@@ -66,7 +66,8 @@ const DatabasePage = () => {
                 property.price?.toLocaleLowerCase().includes(searchKeyword) ||
                 property.property_size?.toLocaleLowerCase().includes(searchKeyword) ||
                 property.title?.toLocaleLowerCase().includes(searchKeyword) ||
-                property.time?.toLocaleLowerCase().includes(searchKeyword)
+                property.time?.toLocaleLowerCase().includes(searchKeyword) ||
+                (`https://dubai.dubizzle.com${property.url?.toLocaleLowerCase()}`).includes(searchKeyword)
         ))
     }, [properties, keyword])
 
