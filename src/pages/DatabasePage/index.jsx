@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { doc, setDoc, collection, getDocs, query, orderBy } from "firebase/firestore";
 import moment from "moment";
+import ReactApexChart from "react-apexcharts";
 
 import { MdOutlineCalendarToday } from "react-icons/md";
 import { PiHouseLineBold } from "react-icons/pi";
@@ -31,6 +32,66 @@ const DatabasePage = () => {
     const [totalCount, setTotalCount] = useState(0);
     const [popularType, setPopularType] = useState('');
     const [activityInPast, setActivityInPast] = useState(0);
+    const [typeDistribution, setTypeDistribution] = useState({
+        series: [{
+          name: "sales",
+          data: [{
+            x: '2019/01/01',
+            y: 400
+          }, {
+            x: '2019/04/01',
+            y: 430
+          }, {
+            x: '2019/07/01',
+            y: 448
+          }, {
+            x: '2019/10/01',
+            y: 470
+          }, {
+            x: '2020/01/01',
+            y: 540
+          }, {
+            x: '2020/04/01',
+            y: 580
+          }, {
+            x: '2020/07/01',
+            y: 690
+          }, {
+            x: '2020/10/01',
+            y: 690
+          }]
+        }],
+        options: {
+          chart: {
+            type: 'bar',
+            height: 380
+          },
+          xaxis: {
+            type: 'category',
+            labels: {
+              formatter: function(val) {
+                return val
+              }
+            },
+            group: {
+              style: {
+                fontSize: '10px',
+                fontWeight: 700
+              }
+            }
+          },
+          title: {
+              text: ' ',
+          },
+          tooltip: {
+            x: {
+              formatter: function(val) {
+                return val;
+              }  
+            }
+          },
+        },
+    });
 
     const startDownloading = () => {
         setIsDownloading(true);
@@ -75,11 +136,11 @@ const DatabasePage = () => {
         ))
     }, [properties, keyword])
 
-    useEffect(()=>{
+    useEffect(() => {
         //----------------- Get Today Count
 
         const today = moment().format('YYYY-MM-DD').trim();
-        setTodayScrapCount(properties.filter((property)=>property.time?.includes(today)).length);
+        setTodayScrapCount(properties.filter((property) => property.time?.includes(today)).length);
 
         //----------------- Get Total count
 
@@ -87,34 +148,43 @@ const DatabasePage = () => {
 
         //----------------- Get Popular Type
 
-        const categories = properties.map((property)=>property.Categories);
+        const categories = properties.map((property) => property.Categories);
         const frequencyMap = {};
         // Count frequencies
         categories.forEach(item => {
             frequencyMap[item] = (frequencyMap[item] || 0) + 1;
         });
 
+        // setTypeDistribution(frequencyMap);
+
+        console.log('frequencyMap ==> ', frequencyMap);
+
         // Find the most frequent item and count
         let mostFrequentItem = null;
         let maxCount = 0;
+        const series = [];
 
         for (const [item, count] of Object.entries(frequencyMap)) {
+            series.push({x: item, y: count});
             if (count > maxCount) {
                 mostFrequentItem = item;
                 maxCount = count;
             }
         }
 
+        console.log('series ==> ', series);
+
+        setTypeDistribution({...typeDistribution, series: [{name: 'types', data: series}]})
         setPopularType(`${mostFrequentItem} / ${maxCount}`)
 
-        setActivityInPast(properties.filter((property)=>isWithinPast7Days(property.time?.split(' ')[0].trim())).length);
+        setActivityInPast(properties.filter((property) => isWithinPast7Days(property.time?.split(' ')[0].trim())).length);
     }, [properties])
 
     const isWithinPast7Days = (dateString) => {
         const date = moment(dateString);
         const today = moment();
         const sevenDaysAgo = moment().subtract(7, 'days');
-      
+
         return date.isBetween(sevenDaysAgo, today, null, '[]'); // inclusive
     };
 
@@ -137,7 +207,12 @@ const DatabasePage = () => {
                                     <FaRegChartBar />
                                     <p className="text-[13px]">Property Types Distribution</p>
                                 </div>
-
+                                <div>
+                                    <div id="chart">
+                                        <ReactApexChart options={typeDistribution.options} series={typeDistribution.series} type="bar" height={380} />
+                                    </div>
+                                    <div id="html-dist"></div>
+                                </div>
                             </div>
                             <div className="flex flex-col !p-[20px] bg-[white] !border-[1px] !border-[#e2e8f0] rounded-md w-[49%] gap-[5px]">
                                 <div className="flex flex-row gap-[10px] items-center">
