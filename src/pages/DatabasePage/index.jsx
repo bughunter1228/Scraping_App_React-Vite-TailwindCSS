@@ -29,6 +29,8 @@ const DatabasePage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [todayScrapCount, setTodayScrapCount] = useState(0);
     const [totalCount, setTotalCount] = useState(0);
+    const [popularType, setPopularType] = useState('');
+    const [activityInPast, setActivityInPast] = useState(0);
 
     const startDownloading = () => {
         setIsDownloading(true);
@@ -71,12 +73,50 @@ const DatabasePage = () => {
                 property.time?.toLocaleLowerCase().includes(searchKeyword) ||
                 (`https://dubai.dubizzle.com${property.url?.toLocaleLowerCase()}`).includes(searchKeyword)
         ))
+    }, [properties, keyword])
+
+    useEffect(()=>{
+        //----------------- Get Today Count
 
         const today = moment().format('YYYY-MM-DD').trim();
         setTodayScrapCount(properties.filter((property)=>property.time?.includes(today)).length);
 
+        //----------------- Get Total count
+
         setTotalCount(properties.length);
-    }, [properties, keyword])
+
+        //----------------- Get Popular Type
+
+        const categories = properties.map((property)=>property.Categories);
+        const frequencyMap = {};
+        // Count frequencies
+        categories.forEach(item => {
+            frequencyMap[item] = (frequencyMap[item] || 0) + 1;
+        });
+
+        // Find the most frequent item and count
+        let mostFrequentItem = null;
+        let maxCount = 0;
+
+        for (const [item, count] of Object.entries(frequencyMap)) {
+            if (count > maxCount) {
+                mostFrequentItem = item;
+                maxCount = count;
+            }
+        }
+
+        setPopularType(`${mostFrequentItem} / ${maxCount}`)
+
+        setActivityInPast(properties.filter((property)=>isWithinPast7Days(property.time?.split(' ')[0].trim())).length);
+    }, [properties])
+
+    const isWithinPast7Days = (dateString) => {
+        const date = moment(dateString);
+        const today = moment();
+        const sevenDaysAgo = moment().subtract(7, 'days');
+      
+        return date.isBetween(sevenDaysAgo, today, null, '[]'); // inclusive
+    };
 
     return (
         <Layout>
@@ -88,8 +128,8 @@ const DatabasePage = () => {
                         <div className="w-full !mt-[20px] flex flex-row justify-between items-center">
                             <NumberCart title={"Today's Scraping"} number={todayScrapCount} icon={<MdOutlineCalendarToday color="#64748b" />} description={'Properties scraped today'} />
                             <NumberCart title={"Total Properties"} number={totalCount} icon={<PiHouseLineBold color="#64748b" />} description={'All time scraped properties'} />
-                            <NumberCart title={"Popular Type"} number={5} icon={<PiBuildingApartmentBold color="#64748b" />} description={'N/A properties'} />
-                            <NumberCart title={"7-Day Activity"} number={5} icon={<LuActivity color="#64748b" />} description={'Properties this week'} />
+                            <NumberCart title={"Popular Type"} number={popularType} icon={<PiBuildingApartmentBold color="#64748b" />} description={'N/A properties'} />
+                            <NumberCart title={"7-Day Activity"} number={activityInPast} icon={<LuActivity color="#64748b" />} description={'Properties this week'} />
                         </div>
                         <div className="w-full !mt-[20px] flex flex-row justify-between">
                             <div className="flex flex-col !p-[20px] bg-[white] !border-[1px] !border-[#e2e8f0] rounded-md w-[49%] gap-[5px]">
