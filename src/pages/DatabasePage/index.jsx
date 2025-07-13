@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { doc, setDoc, collection, getDocs, query, orderBy } from "firebase/firestore";
+import moment from "moment";
 
 import { MdOutlineCalendarToday } from "react-icons/md";
 import { PiHouseLineBold } from "react-icons/pi";
@@ -26,6 +27,8 @@ const DatabasePage = () => {
     const [properties, setProperties] = useState([{ a: 'a', b: 'b' }])
     const [filteredProperties, setFilteredProperties] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [todayScrapCount, setTodayScrapCount] = useState(0);
+    const [totalCount, setTotalCount] = useState(0);
 
     const startDownloading = () => {
         setIsDownloading(true);
@@ -68,11 +71,12 @@ const DatabasePage = () => {
                 property.time?.toLocaleLowerCase().includes(searchKeyword) ||
                 (`https://dubai.dubizzle.com${property.url?.toLocaleLowerCase()}`).includes(searchKeyword)
         ))
-    }, [properties, keyword])
 
-    useEffect(() => {
-        console.log('columns ===> ', columns);
-    }, [])
+        const today = moment().format('YYYY-MM-DD').trim();
+        setTodayScrapCount(properties.filter((property)=>property.time?.includes(today)).length);
+
+        setTotalCount(properties.length);
+    }, [properties, keyword])
 
     return (
         <Layout>
@@ -82,8 +86,8 @@ const DatabasePage = () => {
                         <h1 className="font-bold text-[20px]">Property Database</h1>
                         <p className="text-[#64748b]">View, edit, and manage your saved properties.</p>
                         <div className="w-full !mt-[20px] flex flex-row justify-between items-center">
-                            <NumberCart title={"Today's Scraping"} number={5} icon={<MdOutlineCalendarToday color="#64748b" />} description={'Properties scraped today'} />
-                            <NumberCart title={"Total Properties"} number={5} icon={<PiHouseLineBold color="#64748b" />} description={'All time scraped properties'} />
+                            <NumberCart title={"Today's Scraping"} number={todayScrapCount} icon={<MdOutlineCalendarToday color="#64748b" />} description={'Properties scraped today'} />
+                            <NumberCart title={"Total Properties"} number={totalCount} icon={<PiHouseLineBold color="#64748b" />} description={'All time scraped properties'} />
                             <NumberCart title={"Popular Type"} number={5} icon={<PiBuildingApartmentBold color="#64748b" />} description={'N/A properties'} />
                             <NumberCart title={"7-Day Activity"} number={5} icon={<LuActivity color="#64748b" />} description={'Properties this week'} />
                         </div>

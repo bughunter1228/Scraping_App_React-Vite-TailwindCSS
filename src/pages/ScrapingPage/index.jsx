@@ -33,10 +33,6 @@ const ScrapingPage = () => {
         fetchData();
     }, [])
 
-    useEffect(()=>{
-        console.log('urls ===> ', urls);
-    }, [urls])
-
     const getRandomKey = (length) => {
         const chars =
           "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
