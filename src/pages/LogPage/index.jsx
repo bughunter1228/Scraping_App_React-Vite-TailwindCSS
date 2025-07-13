@@ -29,7 +29,7 @@ const LogPage = () => {
 
     return (
         <Layout>
-            <div className="w-full h-[80%] flex justify-center items-center">
+            <div className="w-full h-[calc(100%-114px)] flex justify-center items-center">
                 {!isLoading ? <div className="w-[90%] max-w-[900px] h-full !mt-[20px]">
                     <h1 className="font-bold text-[20px]">Scraping History</h1>
                     <p className="text-[#64748b]">A log of your recent scraping activities.</p>

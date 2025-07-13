@@ -77,7 +77,7 @@ const DatabasePage = () => {
 
     return (
         <Layout>
-            <div className="w-full h-[87%] flex justify-center items-center overflow-auto">
+            <div className="w-full h-[calc(100%-114px)] flex justify-center items-center overflow-auto">
                 {
                     !isLoading ? <div className="w-[90%] max-w-[1200px] h-full !mt-[20px]">
                         <h1 className="font-bold text-[20px]">Property Database</h1>

@@ -100,7 +100,7 @@ const ScrapingPage = () => {
 
     return (
         <Layout>
-            <div className="w-full h-[80%] flex flex-col !pt-[50px] items-center gap-[20px]">
+            <div className="w-full h-[calc(100%-114px)] flex flex-col !pt-[50px] items-center gap-[20px]">
                 <div className="w-[90%] max-w-[700px] flex flex-col justify-start gap-[5px]">
                     <label htmlFor="url_input">URL</label>
                     <Input id={'url_input'} placeholder={'https://example.com/property/123'} value={url} handleOnChange={setURL} />
