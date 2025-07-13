@@ -123,8 +123,61 @@ const DatabasePage = () => {
 
     });
 
+    const downloadCSV = (data, filename = 'data.csv') => {
+        if (!data || data.length === 0) return;
+
+        // Extract column headers
+        const headers = Object.keys(data[0]);
+
+        // Convert to CSV string
+        const csvRows = [
+            headers.join(','), // header row
+            ...data.map(row =>
+                headers.map(field => {
+                    let val = row[field];
+                    if (typeof val === 'string') {
+                        val = `"${val.replace(/"/g, '""')}"`; // escape quotes
+                    }
+                    return val;
+                }).join(',')
+            )
+        ];
+
+        const csvString = csvRows.join('\n');
+
+        // Create a blob and trigger download
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+
     const startDownloading = () => {
         setIsDownloading(true);
+
+        const datas = filteredProperties.map(property => ({
+            'URL': `https://dubai.dubizzle.com${property.url}`,
+            'Category': property.Categories,
+            'Title': property.title,
+            'Name': property.name,
+            'City': property.city,
+            'Address': property.addressOnly,
+            'price': property.price,
+            'Frequency': property.frequency,
+            'Property Size': property.property_size,
+            'Description': property.content,
+            'ImageLinks': property.imageLinks.join(' | ')
+        }));
+
+        downloadCSV(datas);
+
+        setIsDownloading(false);
     }
 
     useEffect(() => {
@@ -148,18 +201,18 @@ const DatabasePage = () => {
 
         });
 
-        setScrapingActivity({ 
-            ...scrapingAcitivity, 
+        setScrapingActivity({
+            ...scrapingAcitivity,
             series: [
-                { name: 'Fails', data: fails.reverse() }, 
+                { name: 'Fails', data: fails.reverse() },
                 { name: 'Success', data: success.reverse() }
             ],
-            options:  {
+            options: {
                 ...scrapingAcitivity.options,
                 xaxis: {
                     categories: days.reverse()
                 }
-            } 
+            }
         })
     }, [logs])
 
