@@ -113,11 +113,11 @@ const ScrapingPage = () => {
                     <div className="w-[100px]">
                         <RedButton text={'Clear'} icon={<></>} handleOnClick={clear} isLoading={false} />
                     </div>
-                    <div className="flex flex-row justify-center items-center gap-[10px] text-[red]">
+                    <div className="flex flex-row justify-center items-center gap-[10px] text-[#fa2c37]">
                         <IoClose /> 
                         <p>{logs.filter(log=>!log.isSuccess).length}</p>
                     </div>
-                    <div className="flex flex-row justify-center items-center gap-[10px] text-[green]">
+                    <div className="flex flex-row justify-center items-center gap-[10px] text-[#00c950]">
                         <FaCheck /> 
                         <p>{logs.filter(log=>log.isSuccess).length}</p>
                     </div>

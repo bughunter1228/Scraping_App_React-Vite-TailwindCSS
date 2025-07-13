@@ -26,6 +26,7 @@ const DatabasePage = () => {
     const [keyword, setKeyword] = useState('');
     const [isDownloading, setIsDownloading] = useState(false);
     const [properties, setProperties] = useState([{ a: 'a', b: 'b' }])
+    const [logs, setLogs] = useState([]);
     const [filteredProperties, setFilteredProperties] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [todayScrapCount, setTodayScrapCount] = useState(0);
@@ -34,68 +35,147 @@ const DatabasePage = () => {
     const [activityInPast, setActivityInPast] = useState(0);
     const [typeDistribution, setTypeDistribution] = useState({
         series: [{
-          name: "sales",
-          data: [{
-            x: '2019/01/01',
-            y: 400
-          }, {
-            x: '2019/04/01',
-            y: 430
-          }, {
-            x: '2019/07/01',
-            y: 448
-          }, {
-            x: '2019/10/01',
-            y: 470
-          }, {
-            x: '2020/01/01',
-            y: 540
-          }, {
-            x: '2020/04/01',
-            y: 580
-          }, {
-            x: '2020/07/01',
-            y: 690
-          }, {
-            x: '2020/10/01',
-            y: 690
-          }]
+            name: "sales",
+            data: []
         }],
         options: {
-          chart: {
-            type: 'bar',
-            height: 380
-          },
-          xaxis: {
-            type: 'category',
-            labels: {
-              formatter: function(val) {
-                return val
-              }
+            chart: {
+                type: 'bar',
+                height: 380
             },
-            group: {
-              style: {
-                fontSize: '10px',
-                fontWeight: 700
-              }
-            }
-          },
-          title: {
-              text: ' ',
-          },
-          tooltip: {
-            x: {
-              formatter: function(val) {
-                return val;
-              }  
-            }
-          },
+            xaxis: {
+                type: 'category',
+                labels: {
+                    formatter: function (val) {
+                        return val
+                    }
+                },
+                group: {
+                    style: {
+                        fontSize: '10px',
+                        fontWeight: 700
+                    }
+                }
+            },
+            title: {
+                text: ' ',
+            },
+            tooltip: {
+                x: {
+                    formatter: function (val) {
+                        return val;
+                    }
+                }
+            },
         },
+    });
+    const [scrapingAcitivity, setScrapingActivity] = useState({
+
+        series: [{
+            name: 'Net Profit',
+            data: [44, 55, 57, 56, 61, 58, 63, 60, 66]
+        }, {
+            name: 'Revenue',
+            data: [76, 85, 101, 98, 87, 105, 91, 114, 94]
+        }],
+        options: {
+            chart: {
+                type: 'bar',
+                height: 350
+            },
+            colors: ['#fa2c37', '#00c950'],
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '55%',
+                    borderRadius: 5,
+                    borderRadiusApplication: 'end'
+                },
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                show: true,
+                width: 2,
+                colors: ['transparent']
+            },
+            xaxis: {
+                categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+            },
+            yaxis: {
+                title: {
+                    text: ''
+                }
+            },
+            fill: {
+                opacity: 1
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return val
+                    }
+                }
+            }
+        },
+
+
     });
 
     const startDownloading = () => {
         setIsDownloading(true);
     }
+
+    useEffect(() => {
+
+        const days = [];
+        const success = [];
+        const fails = [];
+
+        for (let i = 0; i < 7; i++) {
+            const date = moment().subtract(i, 'days').format('YYYY-MM-DD');
+            days.push(date);
+        }
+
+        days.forEach(day => {
+            const filtered = logs.filter(log => log.time.includes(day));
+            const success_sum = filtered.reduce((acc, curr) => acc + curr.success, 0);
+            const fail_sum = filtered.reduce((acc, curr) => acc + curr.fail, 0);
+
+            success.push(success_sum);
+            fails.push(fail_sum);
+
+        });
+
+        setScrapingActivity({ 
+            ...scrapingAcitivity, 
+            series: [
+                { name: 'Fails', data: fails.reverse() }, 
+                { name: 'Success', data: success.reverse() }
+            ],
+            options:  {
+                ...scrapingAcitivity.options,
+                xaxis: {
+                    categories: days.reverse()
+                }
+            } 
+        })
+    }, [logs])
+
+    useEffect(() => {
+        async function fetchData() {
+            setIsLoading(true);
+            const colRef = collection(db, "logs");
+            const q = query(colRef, orderBy("createdAt", "desc"));
+            const snapshot = await getDocs(q);
+            const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setLogs(list);
+            setIsLoading(false);
+        }
+
+        fetchData();
+    }, [])
 
     useEffect(() => {
         async function fetchData() {
@@ -165,16 +245,14 @@ const DatabasePage = () => {
         const series = [];
 
         for (const [item, count] of Object.entries(frequencyMap)) {
-            series.push({x: item, y: count});
+            series.push({ x: item, y: count });
             if (count > maxCount) {
                 mostFrequentItem = item;
                 maxCount = count;
             }
         }
 
-        console.log('series ==> ', series);
-
-        setTypeDistribution({...typeDistribution, series: [{name: 'types', data: series}]})
+        setTypeDistribution({ ...typeDistribution, series: [{ name: 'types', data: series }] })
         setPopularType(`${mostFrequentItem} / ${maxCount}`)
 
         setActivityInPast(properties.filter((property) => isWithinPast7Days(property.time?.split(' ')[0].trim())).length);
@@ -226,6 +304,12 @@ const DatabasePage = () => {
                                 <div className="flex flex-row gap-[10px] items-center">
                                     <TbActivityHeartbeat />
                                     <p className="text-[13px]">Scraping Activity (Last 7 Days)</p>
+                                </div>
+                                <div>
+                                    <div id="chart">
+                                        <ReactApexChart options={scrapingAcitivity.options} series={scrapingAcitivity.series} type="bar" height={350} />
+                                    </div>
+                                    <div id="html-dist"></div>
                                 </div>
                             </div>
                         </div>

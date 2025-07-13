@@ -8,7 +8,7 @@ const ScrapItem = ({id, url, isSuccess}) =>{
             <p>{id}</p>
             <p className="text-[10px]">{`https://dubai.dubizzle.com${url}`}</p>
             {
-                isSuccess ? <FaCheck color="green" /> : <IoClose color="red" />
+                isSuccess ? <FaCheck color="#00c950" /> : <IoClose color="#fa2c37" />
             }
         </div>
     )
