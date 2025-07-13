@@ -18,7 +18,7 @@ const Header = () => {
 
 
     return (
-        <div className="w-full h-[70px] bg-[#f7fcff] border-[1px] border-[#e2e8f0] flex flex-row justify-between items-center !pl-[100px] !pr-[100px]">
+        <div className="w-full h-[70px] bg-[#f7fcff] !border-[1px] !border-[#e2e8f0] flex flex-row justify-between items-center !pl-[100px] !pr-[100px]">
             <Link to='/'>
                 <div className="flex flex-row justify-center items-center gap-[10px]">
                     <TbZoomScan size={40} color="#417df6" />
