@@ -13,7 +13,7 @@ import RedButton from "../../components/RedButton";
 import ScrapItem from "../../components/ScrapItem";
 
 import { db } from "../../lib/firebase";
-import { doc, setDoc, collection, getDocs, Timestamp } from "firebase/firestore";
+import { doc, setDoc, collection, getDocs, serverTimestamp  } from "firebase/firestore";
 
 const ScrapingPage = () => {
 
@@ -70,7 +70,7 @@ const ScrapingPage = () => {
             if(urls.includes(log.url)) log['isSuccess'] = false;
             else {
                 const key = getRandomKey(20);
-                setDoc(doc(db, "propertis", key), {...log, time: moment().format("YYYY-MM-DD HH-mm-ss")});
+                setDoc(doc(db, "propertis", key), {...log, time: moment().format("YYYY-MM-DD HH-mm-ss"), createdAt: serverTimestamp(),});
                 setURLs([...urls, log.url]);
             }
         });
@@ -78,7 +78,7 @@ const ScrapingPage = () => {
         const successLogsCount = resLogs.filter(log=>log.isSuccess).length;
         const failLogsCount = resLogs.length - successLogsCount;
         const key = getRandomKey(20);
-        setDoc(doc(db, "logs", key), {success: successLogsCount, fail: failLogsCount, url, time: moment().format("YYYY-MM-DD HH-mm-ss")});
+        setDoc(doc(db, "logs", key), {success: successLogsCount, fail: failLogsCount, url, time: moment().format("YYYY-MM-DD HH-mm-ss"), createdAt: serverTimestamp()});
         
         setLogs(resLogs);
         setIsScraping(false);
@@ -106,11 +106,11 @@ const ScrapingPage = () => {
                     <Input id={'url_input'} placeholder={'https://example.com/property/123'} value={url} handleOnChange={setURL} />
                 </div>
                 <div className="w-[90%] max-w-[700px]">
-                    <BlueButton text={'Start'} icon={<FaAnglesRight />} handleOnClick={startScraping} isLoading={isScraping} />
+                    <BlueButton text={'Start'} icon={<FaAnglesRight />} handleOnClick={startScraping} isLoading={isScraping} classlist={'text-[20px]'} />
                 </div>
                 <div className="w-[90%] max-w-[700px] h-[calc(100%-170px)] bg-[#f7fcff] overflow-auto">
                     {
-                        logs.map(log=><ScrapItem id={log.id} url={log.url} isSuccess={log.isSuccess} />)
+                        logs.map(log=><ScrapItem key={log.id} id={log.id} url={log.url} isSuccess={log.isSuccess} />)
                     }
                 </div>
                 <div className="w-[90%] max-w-[700px] flex flex-row-reverse gap-[10px]">
